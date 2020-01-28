@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../src/vector.h"
+#include "vector.h"
 
 typedef struct Token {
     enum {
