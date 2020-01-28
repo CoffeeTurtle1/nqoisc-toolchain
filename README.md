@@ -34,13 +34,15 @@ Run this command to compile the toolchain.
 ```
 
 ## Files
-| Name           | Description                                                 |
-|----------------|-------------------------------------------------------------|
-| disassembler.c | NQOISC disassembler.                                        |
-| simulator.c    | ISA simulator. Run `nqoisc-sim -h` for more info.           |
-| asm.c          | An assembler.                                               |
-| build.sh       | Bash script to build the toolchain.                         |
-| install.sh     | Bash script to install the toolchain.                       |
+| Name           | Description                                       |
+|----------------|---------------------------------------------------|
+| disassembler.c | NQOISC disassembler.                              |
+| simulator.c    | ISA simulator. Run `nqoisc-sim -h` for more info. |
+| asm.c          | An assembler.                                     |
+| build.sh       | Bash script to build the toolchain.               |
+| install.sh     | Bash script to install the toolchain.             |
+| vector.h       | Header file for `vector.c`.                       |
+| vector.c       | A simple vector implementation.                   |
 
 ## Using the tools
 

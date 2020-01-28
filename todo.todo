@@ -1,0 +1,2 @@
+- [ ] add support for defining relative addresses to the assembler.
+- [ ] add command line argument parsing to the assembler.

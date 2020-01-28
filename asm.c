@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
 #include "vector.h"
 
 typedef struct Token {
@@ -271,11 +272,71 @@ void lex(FILE *src)
 
 // Main
 
+void print_help()
+{
+    printf("Usage: nqoisc-asm [Options...]\n"
+           "Options:\n"
+           "-h        Print this help menu and exit.\n"
+           "-i        Specify an input file.\n"
+           "-o <file> Specify an output file the default is \"a.bin\".\n");
+}
+
 int main(int argc, char *argv[])
 {
-    if (argc < 2)
-        return 1;
+    char *source_filename = NULL;
+    char *out_filename = "a.bin";
 
-    // TODO: command line argument parsing.
+    for (int option; (option = getopt(argc, argv, "hi:o:")) != -1;) {
+        switch (option) {
+        // Output file
+        case 'o':
+            out_filename = optarg;
+            break;
+        // Help menu
+        case 'h':
+            print_help();
+            return 0;
+        // Input file
+        case 'i':
+            source_filename = optarg;
+            break;
+        case '?':
+            printf("Unkown option: %c\n", optopt);
+            print_help();
+            return 1;
+            break;
+        }
+    }
+
+    if (source_filename == NULL) {
+        printf("error: no input source file specified.\n");
+        print_help();
+        return 1;
+    }
+
+    // Lex
+
+    FILE *source_fp = fopen(source_filename, "r");
+    if (source_fp == NULL) {
+        printf("error: failed to open \"%s\" for reading.\n", source_filename);
+        return 1;
+    }
+
+    lex(source_fp);
+
+    fclose(source_fp);
+
+    // Parse
+
+    FILE *out_fp = fopen(out_filename, "wb");
+    if (out_fp == NULL) {
+        printf("error: failed to open \"%s\" for writing.\n", out_filename);
+        return 1;
+    }
+
+    parse(out_fp);
+
+    fclose(out_fp);
+
     // TODO: free allocated memory
 }

@@ -165,13 +165,13 @@ void handle_ctrl_c()
 
 void print_help()
 {
-    printf("ISA Simulator.\n\n"
-           "Press ctrl+c to stop the simulator.\n\n"
-           "-h              Print this help and exit.\n"
-           "-m <size>       Set the amount of memory in bytes. (The default is 65536)\n"
-           "-d <size>       Dump <size> bytes of memory to stdout.\n"
-           "-b <filename>   Specify an input file.\n"
-           "-s              Single step mode.\n");
+    printf("Press ctrl+c to stop the simulator.\n\n"
+           "Usage: nqoisc-sim [Options...]\n"
+           "-h            Print this help and exit.\n"
+           "-i <filename> Specify an input file.\n"
+           "-m <size>     Set the amount of memory in bytes. (The default is 65536)\n"
+           "-d <size>     Dump <size> bytes of memory to stdout.\n"
+           "-s            Single step mode.\n");
 }
 
 int main(int argc, char *argv[])
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
     signal(SIGINT, handle_ctrl_c);
 
     char *input_program = NULL;
-    for (int option; (option = getopt(argc, argv, "sm:b:d:h")) != -1;) {
+    for (int option; (option = getopt(argc, argv, "sm:i:d:h")) != -1;) {
         switch (option) {
         // Memory size
         case 'm':
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
             mem_size = atoi(optarg);
             break;
         // Program to be simulated
-        case 'b':
+        case 'i':
             input_program = optarg;
             break;
         // Help
