@@ -165,13 +165,14 @@ void handle_ctrl_c()
 
 void print_help()
 {
-    printf("Press ctrl+c to stop the simulator.\n\n"
-           "Usage: nqoisc-sim [Options...]\n"
-           "-h            Print this help and exit.\n"
-           "-i <filename> Specify an input file.\n"
-           "-m <size>     Set the amount of memory in bytes. (The default is 65536)\n"
-           "-d <size>     Dump <size> bytes of memory to stdout.\n"
-           "-s            Single step mode.\n");
+    printf("Usage: nqoisc-sim [Options...]\n"
+           "Options:\n"
+           "    -h            Print this help and exit.\n"
+           "    -i <filename> Specify an input file.\n"
+           "    -m <size>     Set the amount of memory in bytes. (The default is 65536)\n"
+           "    -d <size>     Dump <size> bytes of memory to stdout.\n"
+           "    -s            Single step mode.\n\n"
+           "Press ctrl+c to stop the simulator.\n");
 }
 
 int main(int argc, char *argv[])

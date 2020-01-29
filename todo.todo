@@ -1,2 +1,3 @@
+- [ ] check for null from realloc and malloc.
 - [ ] add support for defining relative addresses to the assembler.
-- [ ] add command line argument parsing to the assembler.
+- [x] add command line argument parsing to the assembler.

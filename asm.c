@@ -158,6 +158,7 @@ int fpeek(FILE *fp)
     return c;
 }
 
+// This function may cause performance issues
 char *append_char(char *str, char c)
 {
     int len = strlen(str);
@@ -193,13 +194,20 @@ void lex(FILE *src)
 
     while (1) {
         Token *tok = malloc(sizeof(Token));
-        tok->string = malloc(sizeof(char));
-        tok->string[0] = '\0';
+        tok->string = NULL;
 
-        scan_while(src, (int (*)(char))&isspace);
+        {   // Ignore whitespace
+            char c;
+            while ((c = fgetc(src)) != EOF && isspace(c));
+            ungetc(c, src);
+        }
 
-        if (fpeek(src) == EOF)
+
+        if (fpeek(src) == EOF) {
+            tok->type = TOK_EOF;
+            vector_append(lexer_ctx.tokens, tok);
             break;
+        }
 
         // Instruction or label
         if (isalpha(fpeek(src))) {
@@ -213,13 +221,12 @@ void lex(FILE *src)
 
                 // Create label
                 Label *l = malloc(sizeof(Label));
-                l->name = strdup(tok->string);
+                l->name = tok->string;
                 l->location = instr_addr;
 
                 vector_append(lexer_ctx.labels, l);
 
                 // Delete the token as it is not needed
-                free(tok->string);
                 free(tok);
                 continue;
             } else {
@@ -264,10 +271,6 @@ void lex(FILE *src)
 
         vector_append(lexer_ctx.tokens, tok);
     }
-
-    Token *eof = malloc(sizeof(Token));
-    eof->type = TOK_EOF;
-    vector_append(lexer_ctx.tokens, eof);
 }
 
 // Main
@@ -276,21 +279,21 @@ void print_help()
 {
     printf("Usage: nqoisc-asm [Options...]\n"
            "Options:\n"
-           "-h        Print this help menu and exit.\n"
-           "-i        Specify an input file.\n"
-           "-o <file> Specify an output file the default is \"a.bin\".\n");
+           "    -h        Print this help menu and exit.\n"
+           "    -i        Specify an input file.\n"
+           "    -o <file> Specify an output file the default is \"a.bin\".\n");
 }
 
 int main(int argc, char *argv[])
 {
     char *source_filename = NULL;
-    char *out_filename = "a.bin";
+    char *out_filename = NULL;
 
     for (int option; (option = getopt(argc, argv, "hi:o:")) != -1;) {
         switch (option) {
         // Output file
         case 'o':
-            out_filename = optarg;
+            out_filename = strdup(optarg);
             break;
         // Help menu
         case 'h':
@@ -298,7 +301,7 @@ int main(int argc, char *argv[])
             return 0;
         // Input file
         case 'i':
-            source_filename = optarg;
+            source_filename = strdup(optarg);
             break;
         case '?':
             printf("Unkown option: %c\n", optopt);
@@ -312,6 +315,11 @@ int main(int argc, char *argv[])
         printf("error: no input source file specified.\n");
         print_help();
         return 1;
+    }
+
+    if (out_filename == NULL) {
+        out_filename = malloc(sizeof("a.bin"));
+        strcpy(out_filename, "a.bin");
     }
 
     // Lex
@@ -338,5 +346,22 @@ int main(int argc, char *argv[])
 
     fclose(out_fp);
 
-    // TODO: free allocated memory
+    // Free memory
+
+    free(source_filename);
+    free(out_filename);
+
+    // Free tokens
+    for (int i = 0; i < lexer_ctx.tokens->length; i++) {
+        free(((Token *)lexer_ctx.tokens->items[i])->string);
+        free(lexer_ctx.tokens->items[i]);
+    }
+    vector_free(lexer_ctx.tokens);
+
+    // Free labels
+    for (int i = 0; i < lexer_ctx.labels->length; i++) {
+        free(((Label *)lexer_ctx.labels->items[i])->name);
+        free(lexer_ctx.labels->items[i]);
+    }
+    vector_free(lexer_ctx.labels);
 }

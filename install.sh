@@ -1,2 +1,2 @@
 #!/bin/bash
-mv bin/* /usr/local/bin
+cp bin/* /usr/local/bin
