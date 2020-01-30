@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
 #include "vector.h"
 
 typedef struct Token {
@@ -14,6 +15,7 @@ typedef struct Token {
         TOK_SUB,
         TOK_BNZ,
         TOK_INTEGER,
+        TOK_PROGRAM_SIZE,
         TOK_LABEL_REF,
         TOK_EOF,
     } type;
@@ -29,6 +31,7 @@ typedef struct Label {
 struct {
     Vector *tokens;
     Vector *labels; // Symbol table
+    int program_size;
 } lexer_ctx;
 
 struct {
@@ -80,6 +83,21 @@ void expect_tok(int tok_type)
     }
 }
 
+int parse_integer_value()
+{
+    // Normal integer
+    if (accept_tok(TOK_INTEGER)) {
+        return strtol(parser_ctx.lasttok->string, NULL, 10);
+    // Program size constant
+    } else if (accept_tok(TOK_PROGRAM_SIZE)) {
+        return lexer_ctx.program_size;
+    } else {
+        printf("error: expected an integer value instead got \"%s\".\n",
+               parser_ctx.curtok->string);
+        exit(1);
+    }
+}
+
 void parse(FILE *outfile)
 {
     int instr_addr = 0;
@@ -89,31 +107,19 @@ void parse(FILE *outfile)
     while (parser_ctx.curtok->type != TOK_EOF) {
         // Right instruction
         if (accept_tok(TOK_RIGHT)) {
-            expect_tok(TOK_INTEGER);
-
-            gen_instr(outfile, INSTR_RIGHT,
-                      strtol(parser_ctx.lasttok->string, NULL, 10));
+            gen_instr(outfile, INSTR_RIGHT, parse_integer_value());
             instr_addr += 4;
         // Left instruction
         } else if (accept_tok(TOK_LEFT)) {
-            expect_tok(TOK_INTEGER);
-
-            gen_instr(outfile, INSTR_RIGHT,
-                      -strtol(parser_ctx.lasttok->string, NULL, 10));
+            gen_instr(outfile, INSTR_RIGHT, -parse_integer_value());
             instr_addr += 4;
         // Add instruction
         } else if (accept_tok(TOK_ADD)) {
-            expect_tok(TOK_INTEGER);
-
-            gen_instr(outfile, INSTR_ADD,
-                      strtol(parser_ctx.lasttok->string, NULL, 10));
+            gen_instr(outfile, INSTR_ADD, parse_integer_value());
             instr_addr += 4;
         // Subtract instruction
         } else if (accept_tok(TOK_SUB)) {
-            expect_tok(TOK_INTEGER);
-
-            gen_instr(outfile, INSTR_ADD,
-                      -strtol(parser_ctx.lasttok->string, NULL, 10));
+            gen_instr(outfile, INSTR_ADD, -parse_integer_value());
             instr_addr += 4;
         // Branch if not zero instruction
         } else if (accept_tok(TOK_BNZ)) {
@@ -246,6 +252,9 @@ void lex(FILE *src)
                 } else if (strcmp(tok->string, "bnz") == 0) {
                     instr_addr += 4;
                     tok->type = TOK_BNZ;
+                // Program size constant
+                } else if (strcmp(tok->string, "PROGRAM_SIZE") == 0) {
+                    tok->type = TOK_PROGRAM_SIZE;
                 // Label reference
                 } else {
                     tok->type = TOK_LABEL_REF;
@@ -271,6 +280,8 @@ void lex(FILE *src)
 
         vector_append(lexer_ctx.tokens, tok);
     }
+
+    lexer_ctx.program_size = instr_addr;
 }
 
 // Main

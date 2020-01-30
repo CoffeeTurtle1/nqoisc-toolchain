@@ -1,3 +1,7 @@
-- [ ] check for null from realloc and malloc.
-- [ ] add support for defining relative addresses to the assembler.
-- [x] add command line argument parsing to the assembler.
+- [ ] assembler
+    - [ ] add support for branching to specific locations.
+    - [ ] hexadecimal and binary
+    - [ ] check for null from realloc and malloc.
+    - [ ] add support for defining relative addresses to the assembler.
+    - [x] fix memory errors in the simulator
+    - [x] add command line argument parsing to the assembler.

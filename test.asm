@@ -1,4 +1,4 @@
-right 31
+right PROGRAM_SIZE
 left 1
 loop:
     add 2
