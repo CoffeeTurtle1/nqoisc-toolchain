@@ -71,6 +71,7 @@ instruction-stmt ::= instruction value.
 
 value ::= INTEGER.
 value ::= IDENTIFIER.
+value ::= PROGRAM_SIZE.
 
 instruction ::= RIGHT.
 instruction ::= LEFT.
