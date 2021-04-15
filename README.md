@@ -85,8 +85,5 @@ instruction ::= BNZ.
 | right x     | Move the data pointer right.                           | No.                      |
 | left x      | Move the data pointer left.                            | right -x                 |
 | add x       | Add x to the value under the data pointer.             | No.                      |
-| sub x       | Subtract x from the value under the data pointer.      | sub -x                   |
+| sub x       | Subtract x from the value under the data pointer.      | add -x                   |
 | bnz label   | Branch if the value under the data pointer is not zero | No.                      |
-
-## Known Bugs
-- Currently the toolchain will only run on a little endian machine.
